@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -16,13 +17,20 @@ import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private Spinner spinnerCategory;
+    List<Rechnung> bills = new ArrayList<>();
+    ArrayAdapter<Rechnung> listViewAdapter;
+    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        filleCategorys();
+        spinnerCategory = findViewById(R.id.category_dropdown);
+        fillCategorys();
         fillSpinner();
+        listViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bills);
+        listView = findViewById(R.id.listView);
     }
 
     public void datePicker(View view) {
@@ -49,18 +57,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClick(View view) {
+        Rechnung r;
+        String category = String.valueOf(spinnerCategory.getSelectedItem());
+        TextView amountTV = (TextView) findViewById(R.id.amount_textView);
+        String amount = String.valueOf(amountTV.getText());
+        TextView dateTV = (TextView) findViewById(R.id.date_textView);
+        String date = String.valueOf(dateTV.getText());
+        r = new Rechnung(category, amount, date);
+        bills.add(r);
+        dateTV.setText("");
+        amountTV.setText("");
+        listViewAdapter.notifyDataSetChanged();
     }
 
-    private void filleCategorys(){
-        List<String> categories = new ArrayList<>();
-
+    private void fillCategorys(){
         try (BufferedReader br = new BufferedReader(new InputStreamReader(getResources().getAssets().open("categories.csv")))) {
             String nextLine = br.readLine();
             String[] splitted = nextLine.split(",");
 
             ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, splitted);
-            Spinner spinner = findViewById(R.id.category_dropdown);
-            spinner.setAdapter(adapter);
+
+            spinnerCategory.setAdapter(adapter);
 
         } catch (Exception e) {
             e.printStackTrace();

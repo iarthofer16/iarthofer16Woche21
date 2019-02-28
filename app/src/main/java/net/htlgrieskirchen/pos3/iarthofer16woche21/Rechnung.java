@@ -1,6 +1,7 @@
 package net.htlgrieskirchen.pos3.iarthofer16woche21;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Rechnung {
     private String category;
@@ -14,7 +15,14 @@ public class Rechnung {
     }
 
     public Rechnung(String category, String amount, String date){
-
+        this.category = category;
+        try{
+            this.amount = Double.parseDouble(amount);
+        }catch(Exception e){
+            throw new IllegalArgumentException();
+        }
+        String[] dateParts = date.split("-");
+        this.date = LocalDate.of(Integer.parseInt(dateParts[2]), Integer.parseInt(dateParts[1]), Integer.parseInt(dateParts[0]));
     }
 
     public String getCategory() {
