@@ -9,7 +9,11 @@ import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,11 +52,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void filleCategorys(){
+        List<String> categories = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(getResources().getAssets().open("categories.csv")))) {
+            String nextLine = br.readLine();
+            String[] splitted = nextLine.split(",");
+
+            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, splitted);
+            Spinner spinner = findViewById(R.id.category_dropdown);
+            spinner.setAdapter(adapter);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
-    private void fillSpinner()
-    {
+    private void fillSpinner() {
         Spinner spinner = findViewById(R.id.ausgabeEingaben_spinner);
         String[] items = new String []{"Ausgaben", "Einnahmen"};
         ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
