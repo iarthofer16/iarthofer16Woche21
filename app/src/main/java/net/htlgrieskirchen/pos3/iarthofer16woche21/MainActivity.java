@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         fillSpinner();
         listViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bills);
         listView = findViewById(R.id.listView);
+        listView.setAdapter(listViewAdapter);
     }
 
     public void datePicker(View view) {
