@@ -51,10 +51,8 @@ public class Rechnung {
 
     @Override
     public String toString() {
-        return "Rechnung{" +
-                "category='" + category + '\'' +
+        return "category=" + category +
                 ", amount=" + amount +
-                ", date=" + date +
-                '}';
+                ", date=" + date.toString();
     }
 }

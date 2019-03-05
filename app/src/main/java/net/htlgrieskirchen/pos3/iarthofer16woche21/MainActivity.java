@@ -11,7 +11,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -21,17 +26,21 @@ public class MainActivity extends AppCompatActivity {
     List<Rechnung> bills = new ArrayList<>();
     ArrayAdapter<Rechnung> listViewAdapter;
     ListView listView;
+    ArrayAdapter categoryAdapter;
+    String[] categories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         spinnerCategory = findViewById(R.id.category_dropdown);
+
         fillCategorys();
         fillSpinner();
         listViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bills);
         listView = findViewById(R.id.listView);
         listView.setAdapter(listViewAdapter);
+        readCsv();
     }
 
     public void datePicker(View view) {
@@ -59,7 +68,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View view) {
         Rechnung r;
-        String category = String.valueOf(spinnerCategory.getSelectedItem());
+        TextView categoryTV = (TextView) findViewById(R.id.customCategory_textView);
+        String category;
+        if(!categoryTV.getText().equals("custom category")){
+            category = String.valueOf(categoryTV.getText());
+            addCategory(category);
+        }else{
+            category = String.valueOf(spinnerCategory.getSelectedItem());
+        }
         TextView amountTV = (TextView) findViewById(R.id.amount_textView);
         String amount = String.valueOf(amountTV.getText());
         TextView dateTV = (TextView) findViewById(R.id.date_textView);
@@ -74,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
     private void fillCategorys(){
         try (BufferedReader br = new BufferedReader(new InputStreamReader(getResources().getAssets().open("categories.csv")))) {
             String nextLine = br.readLine();
-            String[] splitted = nextLine.split(",");
+            categories = nextLine.split(",");
 
-            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, splitted);
+            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories);
 
             spinnerCategory.setAdapter(adapter);
 
@@ -92,4 +108,78 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         spinner.setAdapter(adapter);
     }
+
+    private void addCategory(String category){
+        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        String fileName = "categories.csv";
+        String filePath = baseDir + File.separator + fileName;
+        File f = new File(filePath );
+
+        String nextLine = "";
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(getResources().getAssets().open("categories.csv")))) {
+            nextLine = br.readLine();
+            categories = nextLine.split(",");
+            categories[categories.length] = category;
+
+            categoryAdapter.notifyDataSetChanged();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedWriter br = new BufferedWriter(new FileWriter(filePath))) {
+            br.write(nextLine + "," + category);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeCsv(){
+        String fileName = "data.csv";
+
+        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(openFileOutput(fileName, MODE_APPEND)))) {
+                out.println(bills.get(bills.size()-1).toString());
+                out.flush();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readCsv(){
+        bills.clear();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(openFileInput("data.csv")))) {
+            String nextLine = "";
+            while((nextLine = br.readLine()) != null){
+                String[] splitted = nextLine.split(",");
+
+                String date = splitted[2].split("=")[1];
+                String amount = splitted[1].split("=")[1];
+                String category = splitted[0].split("=")[1];
+
+                Rechnung r = new Rechnung(category, amount, date);
+                bills.add(r);
+            }
+
+            listViewAdapter.notifyDataSetChanged();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //TODO csv schreiben
+
+    //TODO aktueller Stand anzeigen
+
+    //TODO Toasts
+
+    //TODO logs
+
+    //TODO trennen von Logic und Android
+
+    //TODO Unit tests
 }
