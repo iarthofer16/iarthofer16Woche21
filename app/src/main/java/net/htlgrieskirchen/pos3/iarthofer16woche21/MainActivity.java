@@ -23,28 +23,40 @@ import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private Logic l = new Logic();
+
     private Spinner spinnerCategory;
-    List<Rechnung> bills;
+    private TextView cashTextView;
+    private ListView listView;
+
     ArrayAdapter<Rechnung> listViewAdapter;
-    ListView listView;
-    ArrayAdapter categoryAdapter;
-    String[] categories;
-    TextView cashTextView;
-    int currentAmount = 0;
+    ArrayAdapter<String> categoryAdapter;
+
+    private List<Rechnung> bills;
+    private List<String> categories;
+    private double currentAmount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bills = new ArrayList<>();
         spinnerCategory = findViewById(R.id.category_dropdown);
         cashTextView  = findViewById(R.id.cashTextView);
+        listView = findViewById(R.id.listView);
+
+        bills = new ArrayList<>();
+        listViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bills);
+
+        listView.setAdapter(listViewAdapter);
+
+        categories = new ArrayList<>();
+        categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
+
+        spinnerCategory.setAdapter(categoryAdapter);
 
         fillCategorys();
         fillSpinner();
-        listViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bills);
-        listView = findViewById(R.id.listView);
-        listView.setAdapter(listViewAdapter);
         readCsv();
     }
 
@@ -72,44 +84,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClick(View view) {
-        Rechnung r = null;
+
         TextView categoryTV = (TextView) findViewById(R.id.customCategory_textView);
+        TextView amountTV = (TextView) findViewById(R.id.amount_textView);
+        TextView dateTV = (TextView) findViewById(R.id.date_textView);
+        Spinner typeSP = (Spinner) findViewById(R.id.ausgabeEingaben_spinner);
+
+
+        Rechnung r;
         String category;
+
         if(categoryTV.getText().equals("custom Category")){
             //TODO custom Category is always used
             category = String.valueOf(spinnerCategory.getSelectedItem());
-
         }else{
             category = String.valueOf(categoryTV.getText());
             addCategory(category);
         }
-        TextView amountTV = (TextView) findViewById(R.id.amount_textView);
-        double amount = 0;
-        TextView dateTV = (TextView) findViewById(R.id.date_textView);
+
+        String amount = String.valueOf(amountTV.getText());
+        String date = String.valueOf(dateTV.getText());
+        String type = String.valueOf(typeSP.getSelectedItem());
 
         try{
-            String date = String.valueOf(dateTV.getText());
-            if(date.equals("")){
-                throw new IllegalArgumentException();
-            }
 
-            Spinner type = (Spinner) findViewById(R.id.ausgabeEingaben_spinner);
-            if(String.valueOf(type.getSelectedItem()).equals("Ausgaben")){
-                amount = Double.parseDouble(String.valueOf(amountTV.getText())) * (-1);
-                currentAmount -= amount;
-            }else{
-                amount = Double.parseDouble(String.valueOf(amountTV.getText()));
-                currentAmount += amount;
-            }
-
-            r = new Rechnung(category, amount, date);
+            r = l.makeRechnung(category, amount, date, type);
+            currentAmount += r.getAmount();
             bills.add(r);
 
             listViewAdapter.notifyDataSetChanged();
 
             writeCsv();
 
-            amountTV.setText("CA$H " + currentAmount);
+            cashTextView.setText("CA$H " + currentAmount);
 
         }catch(Exception e){
             Toast.makeText(getApplicationContext(), "Falsche Eingabe", Toast.LENGTH_LONG).show();
@@ -121,13 +128,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fillCategorys(){
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getResources().getAssets().open("categories.csv")))) {
-            String nextLine = br.readLine();
-            categories = nextLine.split(",");
+        categories.add("Kleidung");
+        categories.add("Lebensmittel");
+        categories.add("Auto");
 
-            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(openFileInput("categories.csv")))) {
+            String nextLine = "";
+            while((nextLine = br.readLine()) != null){
+                categories.add(nextLine);
+            }
 
-            spinnerCategory.setAdapter(adapter);
+            categoryAdapter.notifyDataSetChanged();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,30 +154,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addCategory(String category){
-        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        String fileName = "categories.csv";
-        String filePath = baseDir + File.separator + fileName;
-        File f = new File(filePath );
+        if(!categories.contains(category)){
+            categories.add(category);
+            String fileName = "data.csv";
 
-        String nextLine = "";
+            try (PrintWriter out = new PrintWriter(new OutputStreamWriter(openFileOutput(fileName, MODE_APPEND)))) {
+                out.println(category);
+                out.flush();
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getResources().getAssets().open("categories.csv")))) {
-            nextLine = br.readLine();
-            categories = nextLine.split(",");
-            categories[categories.length] = category;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
 
             categoryAdapter.notifyDataSetChanged();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try (BufferedWriter br = new BufferedWriter(new FileWriter(filePath))) {
-            br.write(nextLine + "," + category);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -198,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 bills.add(r);
             }
 
+            currentAmount = l.calculateCash(bills);
             listViewAdapter.notifyDataSetChanged();
 
         } catch (Exception e) {
@@ -207,13 +209,9 @@ public class MainActivity extends AppCompatActivity {
 
     //TODO csv lesen
 
-    //TODO aktueller Stand anzeigen
-
 
 
     //TODO logs
-
-    //TODO trennen von Logic und Android
 
     //TODO Unit tests
 }
