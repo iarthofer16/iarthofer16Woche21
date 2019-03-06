@@ -3,6 +3,7 @@ package net.htlgrieskirchen.pos3.iarthofer16woche21;
 import android.app.DatePickerDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -23,7 +24,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+private static final String TAG = "Woche21";
     private Logic l = new Logic();
 
     private Spinner spinnerCategory;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         spinnerCategory = findViewById(R.id.category_dropdown);
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void datePicker(View view) {
+        Log.d(TAG, "datePicker");
 
         final Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClick(View view) {
+        Log.d(TAG, "onClick");
 
         TextView categoryTV = (TextView) findViewById(R.id.customCategory_textView);
         TextView amountTV = (TextView) findViewById(R.id.amount_textView);
@@ -128,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fillCategorys(){
+        Log.d(TAG, "fillCategorys");
+
         categories.add("Kleidung");
         categories.add("Lebensmittel");
         categories.add("Auto");
@@ -147,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fillSpinner() {
+        Log.d(TAG, "fillSpinner");
+
         Spinner spinner = findViewById(R.id.ausgabeEingaben_spinner);
         String[] items = new String []{"Ausgaben", "Einnahmen"};
         ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -154,6 +163,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addCategory(String category){
+        Log.d(TAG, "addCategory");
+
         if(!categories.contains(category)){
             categories.add(category);
             String fileName = "data.csv";
@@ -172,6 +183,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void writeCsv(){
+        Log.d(TAG, "writeCsv");
+
         String fileName = "data.csv";
 
         try (PrintWriter out = new PrintWriter(new OutputStreamWriter(openFileOutput(fileName, MODE_APPEND)))) {
@@ -184,6 +197,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void readCsv(){
+        Log.d(TAG, "readCsv");
+
         bills.clear();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(openFileInput("data.csv")))) {
             String nextLine = "";
@@ -209,9 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
     //TODO csv lesen
 
-
-
-    //TODO logs
+    //TODO make listView better
 
     //TODO Unit tests
 }
