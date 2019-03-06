@@ -1,16 +1,11 @@
 package net.htlgrieskirchen.pos3.iarthofer16woche21;
 
-import android.widget.Spinner;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.List;
 
 public class Logic {
 
 
-
-    public Rechnung makeRechnung(String category, String amountString, String dateString, String type){
+    public Rechnung makeRechnung(String category, String amountString, String dateString, String type) {
         Rechnung r = null;
 
         double amount = 0;
@@ -27,15 +22,15 @@ public class Logic {
             }
 
             r = new Rechnung(category, amount, dateString);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new IllegalArgumentException();
         }
 
         return r;
     }
 
-    public double calculateCash(List<Rechnung> bills){
-        if(bills.isEmpty()){
+    public double calculateCash(List<Rechnung> bills) {
+        if (bills.isEmpty()) {
             return 0.0;
         }
         double cash = 0.0;
