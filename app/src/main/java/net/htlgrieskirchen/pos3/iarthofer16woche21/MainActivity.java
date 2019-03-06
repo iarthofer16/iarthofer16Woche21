@@ -50,12 +50,10 @@ private static final String TAG = "Woche21";
 
         bills = new ArrayList<>();
         listViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bills);
-
         listView.setAdapter(listViewAdapter);
 
         categories = new ArrayList<>();
         categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
-
         spinnerCategory.setAdapter(categoryAdapter);
 
         fillCategorys();
@@ -100,10 +98,9 @@ private static final String TAG = "Woche21";
         String category;
 
         if(categoryTV.getText().equals("custom Category")){
-            //TODO custom Category is always used
             category = String.valueOf(spinnerCategory.getSelectedItem());
         }else{
-            category = String.valueOf(categoryTV.getText());
+            category = String.valueOf(spinnerCategory.getSelectedItem());
             addCategory(category);
         }
 
@@ -167,7 +164,7 @@ private static final String TAG = "Woche21";
 
         if(!categories.contains(category)){
             categories.add(category);
-            String fileName = "data.csv";
+            String fileName = "categries.csv";
 
             try (PrintWriter out = new PrintWriter(new OutputStreamWriter(openFileOutput(fileName, MODE_APPEND)))) {
                 out.println(category);
@@ -187,7 +184,7 @@ private static final String TAG = "Woche21";
 
         String fileName = "data.csv";
 
-        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(openFileOutput(fileName, MODE_APPEND)))) {
+        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(openFileOutput(fileName, MODE_PRIVATE)))) {
                 out.println(bills.get(bills.size()-1).toString());
                 out.flush();
 
