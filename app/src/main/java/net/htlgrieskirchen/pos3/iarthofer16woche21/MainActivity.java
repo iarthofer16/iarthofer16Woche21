@@ -15,6 +15,7 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -59,6 +60,8 @@ private static final String TAG = "Woche21";
         fillCategorys();
         fillSpinner();
         readCsv();
+        currentAmount = l.calculateCash(bills);
+        cashTextView.setText("CA$H " + currentAmount);
     }
 
     public void datePicker(View view) {
@@ -125,16 +128,22 @@ private static final String TAG = "Woche21";
         }
 
         dateTV.setText("");
-        amountTV.setText("euro");
-        categoryTV.setText("custom Category");
+        amountTV.setText("");
+        categoryTV.setText("");
     }
 
     private void fillCategorys(){
         Log.d(TAG, "fillCategorys");
 
-        categories.add("Kleidung");
-        categories.add("Lebensmittel");
-        categories.add("Auto");
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("categories.csv")))){
+            String line = br.readLine();
+            String[] splitted = line.split(",");
+            for(int i = 0; i < splitted.length; i++){
+                categories.add(splitted[i]);
+            }
+        }catch(Exception e){
+            throw new IllegalArgumentException();
+        }
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(openFileInput("categories.csv")))) {
             String nextLine = "";
@@ -219,7 +228,5 @@ private static final String TAG = "Woche21";
         }
     }
 
-    //TODO csv lesen
-
-    //TODO make listView better
+    //TODO CSV richtig lesen
 }
