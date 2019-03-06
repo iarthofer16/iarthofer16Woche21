@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Rechnung {
-    private String category;
-    private double amount;
-    private LocalDate date;
+    private static String category;
+    private static double amount;
+    private static LocalDate date;
 
     public Rechnung(String category, double amount, LocalDate date){
         this.category = category;

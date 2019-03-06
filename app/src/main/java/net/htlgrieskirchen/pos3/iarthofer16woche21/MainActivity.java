@@ -31,10 +31,10 @@ private static final String TAG = "Woche21";
     private TextView cashTextView;
     private ListView listView;
 
-    ArrayAdapter<Rechnung> listViewAdapter;
+    MyAdapter listViewAdapter;
     ArrayAdapter<String> categoryAdapter;
 
-    private List<Rechnung> bills;
+    public ArrayList<Rechnung> bills;
     private List<String> categories;
     private double currentAmount = 0;
 
@@ -49,7 +49,7 @@ private static final String TAG = "Woche21";
         listView = findViewById(R.id.listView);
 
         bills = new ArrayList<>();
-        listViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bills);
+        listViewAdapter = new MyAdapter(this , bills);
         listView.setAdapter(listViewAdapter);
 
         categories = new ArrayList<>();
@@ -222,6 +222,4 @@ private static final String TAG = "Woche21";
     //TODO csv lesen
 
     //TODO make listView better
-
-    //TODO Unit tests
 }
