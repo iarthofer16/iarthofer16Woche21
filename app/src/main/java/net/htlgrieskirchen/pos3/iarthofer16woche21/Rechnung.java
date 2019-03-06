@@ -14,13 +14,9 @@ public class Rechnung {
         this.date = date;
     }
 
-    public Rechnung(String category, String amount, String date){
+    public Rechnung(String category, double amount, String date){
         this.category = category;
-        try{
-            this.amount = Double.parseDouble(amount);
-        }catch(Exception e){
-            throw new IllegalArgumentException();
-        }
+            this.amount = amount;
         String[] dateParts = date.split("-");
         this.date = LocalDate.of(Integer.parseInt(dateParts[2]), Integer.parseInt(dateParts[1]), Integer.parseInt(dateParts[0]));
     }
